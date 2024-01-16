@@ -1,0 +1,1 @@
+"D:/software/Python310/python.exe" %homepath%/OneDrive/blink-prompt/src/__main__.py

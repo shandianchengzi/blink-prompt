@@ -23,6 +23,8 @@ from PySide2.QtCore import Qt, QThread
 显现透明度 = 0.2
 显现时长 = 0.017
 间隔时长 = 5
+休息时长_单位分钟 = 10
+工作时长_单位分钟 = 45
 
 def main():
     app=QtWidgets.QApplication(sys.argv)
@@ -52,13 +54,33 @@ class BlinkThread(QThread):
         self.显现透明度 = 显现透明度
         self.显现时长 = 显现时长
         self.间隔时长 = 间隔时长
+        self.休息时长_单位秒 = 休息时长_单位分钟 * 60
+        self.工作时长_单位秒 = 工作时长_单位分钟 * 60
+        self.休息 = False
 
     def run(self):
         i = 0
+        运行总时长 = 0
         while True:
+            运行总时长 += self.间隔时长
+            # 休息
+            if 运行总时长 > self.工作时长_单位秒 and not self.休息:
+                运行总时长 = 0
+                self.控件.setWindowOpacity(1)
+                print(f'休息 {self.休息时长_单位秒} 秒')
+                sleep(self.休息时长_单位秒)
+                self.控件.setWindowOpacity(0)
+                self.休息 = True
+                continue
+            # 工作
+            elif 运行总时长 > self.休息时长_单位秒 and self.休息:
+                运行总时长 = 0
+                self.休息 = False
+                self.控件.setWindowOpacity(0)
+                continue
             self.控件.setWindowOpacity(self.显现透明度)
             i += 1
-            print(f'现身第 {i} 次')
+            # print(f'现身第 {i} 次')
             sleep(self.显现时长)
             self.控件.setWindowOpacity(0)
             sleep(self.间隔时长)
